@@ -10,16 +10,23 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
-
+    @Query private var items: [Scenario]
+    
     var body: some View {
         NavigationSplitView {
             List {
-                ForEach(items) { item in
+                ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
+                        ScenarioView(value: item)
                     } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                        Text(item.name)
+                            .swipeActions {
+                                Button(role: .destructive) {
+                                    modelContext.delete(item)
+                                } label: {
+                                    Image(systemName: "trash")
+                                }
+                            }
                     }
                 }
                 .onDelete(perform: deleteItems)
@@ -36,14 +43,14 @@ struct ContentView: View {
             Text("Select an item")
         }
     }
-
+    
     private func addItem() {
         withAnimation {
-            let newItem = Item(timestamp: Date())
+            let newItem = Scenario(name: String(localized: "Scenario \(items.count + 1)"), timestamp: Date())
             modelContext.insert(newItem)
         }
     }
-
+    
     private func deleteItems(offsets: IndexSet) {
         withAnimation {
             for index in offsets {
@@ -55,5 +62,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .modelContainer(for: Scenario.self, inMemory: true)
 }

@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		6AFE2C7A2E6477940093C251 /* SVGKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6AFE2C792E6477940093C251 /* SVGKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		6A52A69E2E5D3F2100292A5F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6AFE2C7A2E6477940093C251 /* SVGKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = Figment;
 			packageProductDependencies = (
+				6AFE2C792E6477940093C251 /* SVGKit */,
 			);
 			productName = Figment;
 			productReference = 6A52A68E2E5D3F1F00292A5F /* Figment.app */;
@@ -195,6 +201,9 @@
 			);
 			mainGroup = 6A52A6852E5D3F1F00292A5F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				6AFE2C782E6477940093C251 /* XCRemoteSwiftPackageReference "SVGKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 6A52A68F2E5D3F1F00292A5F /* Products */;
 			projectDirPath = "";
@@ -577,6 +586,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6AFE2C782E6477940093C251 /* XCRemoteSwiftPackageReference "SVGKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SVGKit/SVGKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6AFE2C792E6477940093C251 /* SVGKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6AFE2C782E6477940093C251 /* XCRemoteSwiftPackageReference "SVGKit" */;
+			productName = SVGKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6A52A6862E5D3F1F00292A5F /* Project object */;
 }

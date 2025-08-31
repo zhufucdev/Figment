@@ -36,7 +36,12 @@ struct ScenarioView: View {
         if value.layers.count < miniumImageCountForComparsion {
             initialDropView
         } else {
-            comparisonView
+            if #available(macOS 26.0, *) {
+                comparisonView
+                    .ignoresSafeArea(edges: .horizontal)
+            } else {
+                comparisonView
+            }
         }
     }
     

@@ -9,12 +9,14 @@ import Foundation
 import SwiftUI
 internal import UniformTypeIdentifiers
 
+private let miniumImageCountForComparsion = 2
+
 struct ScenarioView: View {
     let value: Scenario
     @State private var isDropHovered = false
     @State private var isLoading = false
     @State private var layerLoaderError: Error? = nil
-    
+
     private var layerLoaderErrorLocalized: AppLocalizedError? {
         if let e = layerLoaderError {
             AppLocalizedError(inner: e)
@@ -23,54 +25,73 @@ struct ScenarioView: View {
         }
     }
 
+    private var remainingRequiredImages: String {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .spellOut
+        let lacking = miniumImageCountForComparsion - value.layers.count
+        return formatter.string(from: lacking as NSNumber)?.capitalized ?? String(lacking)
+    }
+
     var body: some View {
-        DashedContainer(dashPhase: -10) {
-            ZStack {
-                if isDropHovered {
-                    Rectangle()
-                        .opacity(0.2)
-                }
-                if value.layers.isEmpty {
-                    Image(systemName: "photo.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(50)
-                } else {
-                    ZStack {
-                        ForEach(Array(value.layers.enumerated()), id: \.element.id) { index, layer in
-                            buildPreview(index: index, layer: layer)
-                        }
+        VStack {
+            DashedContainer(dashPhase: -10) {
+                ZStack {
+                    if isDropHovered {
+                        Rectangle()
+                            .opacity(0.2)
                     }
-                    .padding(25)
+                    if value.layers.isEmpty {
+                        Image(systemName: "photo.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .padding(50)
+                    } else {
+                        ZStack {
+                            ForEach(Array(value.layers.enumerated()), id: \.element.id) { index, layer in
+                                buildPreview(index: index, layer: layer)
+                            }
+                        }
+                        .padding(25)
+                    }
                 }
+                .frame(width: 200, height: 200)
             }
-            .frame(width: 200, height: 200)
-        }
-        .onDrop(of: [.image], isTargeted: $isDropHovered) { items in
-            Task {
-                isLoading = true
-                do {
-                    value.layers += try await loadLayers(items)
-                } catch {
-                    layerLoaderError = error
+            .onDrop(of: [.image], isTargeted: $isDropHovered) { items in
+                Task {
+                    isLoading = true
+                    do {
+                        let newLayers = try await loadLayers(items)
+                        withAnimation {
+                            value.layers += newLayers
+                        }
+                    } catch {
+                        layerLoaderError = error
+                    }
+                    isLoading = false
                 }
-                isLoading = false
+                return true
             }
-            return true
+            .alert(isPresented: Binding(get: {
+                layerLoaderError != nil
+            }, set: { newValue, _ in
+                if !newValue {
+                    layerLoaderError = nil
+                }
+            }), error: layerLoaderErrorLocalized, actions: { _ in
+                Button("Close") {
+                    layerLoaderError = nil
+                }
+            }, message: { err in
+                Text(err.localizedDescription)
+            })
+            Spacer()
+                .frame(height: 20)
+            if value.layers.isEmpty {
+                Text("Drop here for comparison")
+            } else if value.layers.count < miniumImageCountForComparsion {
+                Text("\(remainingRequiredImages) more to start")
+            }
         }
-        .alert(isPresented: Binding(get: {
-            layerLoaderError != nil
-        }, set: { newValue, _ in
-            if !newValue {
-                layerLoaderError = nil
-            }
-        }), error: layerLoaderErrorLocalized, actions: { _ in
-            Button("Close") {
-                layerLoaderError = nil
-            }
-        }, message: { err in
-            Text(err.localizedDescription)
-        })
     }
 
     private func loadLayers(_ items: [NSItemProvider]) async throws -> [Layer] {

@@ -33,6 +33,14 @@ struct ScenarioView: View {
     }
 
     var body: some View {
+        if value.layers.count < miniumImageCountForComparsion {
+            initialDropView
+        } else {
+            comparisonView
+        }
+    }
+    
+    private var initialDropView: some View {
         VStack {
             DashedContainer(dashPhase: -10) {
                 ZStack {
@@ -90,6 +98,17 @@ struct ScenarioView: View {
                 Text("Drop here for comparison")
             } else if value.layers.count < miniumImageCountForComparsion {
                 Text("\(remainingRequiredImages) more to start")
+            }
+        }
+    }
+    
+    @State private var comparisonViewScale: CGFloat = 1
+    private var comparisonView: some View {
+        ZoomableScrollView(scale: $comparisonViewScale, maxScale: 10) {
+            ZStack {
+                ForEach(Array(value.layers.enumerated()), id: \.element.id) { index, layer in
+                    buildSafeImage(data: layer.data)
+                }
             }
         }
     }

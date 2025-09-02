@@ -11,7 +11,7 @@ struct ZoomableScrollView<Content: View>: NSViewRepresentable {
         _scale = scale
         self.maxScale = maxScale
         self.minScale = minScale
-        self.enableScaling = enableZooming
+        enableScaling = enableZooming
         self.content = content()
     }
 
@@ -26,9 +26,6 @@ struct ZoomableScrollView<Content: View>: NSViewRepresentable {
 
         // Create a NSHostingController to hold our SwiftUI content
         let hostedView = context.coordinator.viewForZooming
-        hostedView.frame = scrollView.bounds
-        hostedView.autoresizingMask = [.width, .height]
-        hostedView.translatesAutoresizingMaskIntoConstraints = true
         scrollView.documentView = hostedView
         scrollView.addObserver(context.coordinator, forKeyPath: "magnification", options: [.new], context: nil)
 
@@ -42,6 +39,16 @@ struct ZoomableScrollView<Content: View>: NSViewRepresentable {
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         // update the hosting controller's SwiftUI content
         context.coordinator.hostingController.rootView = content
+        let hostedView = context.coordinator.viewForZooming
+        var width = hostedView.fittingSize.width
+        var height = hostedView.fittingSize.height
+        if width < nsView.bounds.width {
+            width = nsView.bounds.width
+        }
+        if height < nsView.bounds.height {
+            height = nsView.bounds.height
+        }
+        hostedView.setFrameSize(NSSize(width: width, height: height))
 
         nsView.allowsMagnification = enableScaling
         nsView.magnification = scale
@@ -80,15 +87,13 @@ struct ZoomableScrollView<Content: View>: NSViewRepresentable {
     var enabled = true
 
     ZoomableScrollView(scale: $scale, enableZooming: enabled) {
-        VStack {
-            ZStack {
-                Rectangle()
-                    .foregroundStyle(.blue)
-                    .frame(width: 200, height: 100)
-                Text("\(scale * 100)%")
-            }
+        ZStack {
+            Rectangle()
+                .foregroundStyle(.blue)
+                .border(.red)
+                .frame(width: 200, height: 900)
+            Text("\(scale * 100)%")
         }
-        .safeAreaPadding()
     }
     HStack {
         Button("Reset zoom") {

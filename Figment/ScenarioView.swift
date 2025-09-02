@@ -115,9 +115,33 @@ struct ScenarioView: View {
     }
 
     @State private var comparisonViewScale: CGFloat = 1
+    @State private var showLayersPanel = false
+    @State private var selectedLayerIds = Set<String>()
     private var comparisonView: some View {
         ZoomableScrollView(scale: $comparisonViewScale, maxScale: 10, minScale: 0.1) {
-            Ring(contestants: layerImages, offsets: .constant([]))
+            Ring(contestants: layerImages, offsets: .constant([]), hidden: value.layers.map { $0.hidden }, selectedIndices: Set(selectedLayerIds.map { id in value.layers.firstIndex { layer in
+                layer.id == id
+            }! }))
+        }
+        .inspector(isPresented: $showLayersPanel) {
+            List(selection: $selectedLayerIds) {
+                ForEach(Array(value.layers.enumerated()), id: \.element.id) { index, layer in
+                    LayerView(layer: Binding(get: {
+                        layer
+                    }, set: { newValue in
+                        value.layers[index] = newValue
+                    }), order: index)
+                }
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    showLayersPanel = !showLayersPanel
+                } label: {
+                    Image(systemName: "square.3.layers.3d.down.right")
+                }
+            }
         }
     }
 

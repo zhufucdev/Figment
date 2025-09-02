@@ -10,4 +10,5 @@ import Foundation
 struct Layer : Codable, Identifiable {
     let data: Data
     let id: String
+    var hidden: Bool = false
 }

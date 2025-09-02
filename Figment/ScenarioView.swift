@@ -123,6 +123,7 @@ struct ScenarioView: View {
                 layer.id == id
             } ?? -1 }.filter { $0 >= 0 }))
         }
+        .ignoresSafeArea(.all)
         .inspector(isPresented: $showLayersPanel) {
             List(selection: $selectedLayerIds) {
                 ForEach(Array(value.layers.enumerated()), id: \.element.id) { index, layer in

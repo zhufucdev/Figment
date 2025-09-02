@@ -45,21 +45,28 @@ struct Ring: View {
 
     var body: some View {
         Canvas { context, canvasSize in
-            for (index, contestant) in contestants.enumerated() {
-                if contestant == Drawable.none || isHidden(index: index) {
-                    continue
+            let imageDraw = Array(contestants.enumerated()
+                .filter { index, contestant in
+                    contestant != Drawable.none && !isHidden(index: index)
                 }
-                let size = contestant.size ?? .init(width: 50, height: 50)
-                let aspectRatio = size.aspectRatio
-                let drawingSize = size.width - canvasSize.width > size.height - canvasSize.height ? CGSize(width: canvasSize.width, height: canvasSize.width / aspectRatio) : CGSize(width: canvasSize.height * aspectRatio, height: canvasSize.height)
-                let offset = getOffset(index: index)
-                let image = buildImageFor(contestant, size: drawingSize)
+                .map { index, contestant in
+                    let size = contestant.size ?? .init(width: 50, height: 50)
+                    let aspectRatio = size.aspectRatio
+                    let drawingSize = size.width - canvasSize.width > size.height - canvasSize.height ? CGSize(width: canvasSize.width, height: canvasSize.width / aspectRatio) : CGSize(width: canvasSize.height * aspectRatio, height: canvasSize.height)
+                    let offset = getOffset(index: index)
+                    let image = buildImageFor(contestant, size: drawingSize)
 
-                let area = CGRect(x: Int((canvasSize.width - drawingSize.width) / 2 + offset.x), y: Int((canvasSize.height - drawingSize.height) / 2 + offset.y), width: Int(drawingSize.width), height: Int(drawingSize.height))
-                context.blendMode = .difference
+                    return (image, CGRect(x: Int((canvasSize.width - drawingSize.width) / 2 + offset.x), y: Int((canvasSize.height - drawingSize.height) / 2 + offset.y), width: Int(drawingSize.width), height: Int(drawingSize.height)))
+                })
+
+            context.blendMode = .difference
+            for (image, area) in imageDraw {
                 context.draw(image, in: area)
+            }
+            
+            context.blendMode = .normal
+            for (index, (image, area)) in imageDraw.enumerated() {
                 if selectedIndices.contains(index) {
-                    context.blendMode = .normal
                     context.stroke(Path(area), with: .color(.accentColor), style: StrokeStyle(lineWidth: 2, dash: [10, 2]))
                 }
             }

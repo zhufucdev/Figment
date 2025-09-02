@@ -121,7 +121,7 @@ struct ScenarioView: View {
         ZoomableScrollView(scale: $comparisonViewScale, maxScale: 10, minScale: 0.1) {
             Ring(contestants: layerImages, offsets: .constant([]), hidden: value.layers.map { $0.hidden }, selectedIndices: Set(selectedLayerIds.map { id in value.layers.firstIndex { layer in
                 layer.id == id
-            }! }))
+            } ?? -1 }.filter { $0 >= 0 }))
         }
         .inspector(isPresented: $showLayersPanel) {
             List(selection: $selectedLayerIds) {

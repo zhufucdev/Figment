@@ -7,37 +7,38 @@
 
 import Foundation
 import SwiftUI
-internal import SVGKit
 
 struct Ring: View {
     let contestants: [Drawable]
     @Binding var offsets: [CGPoint]
 
     private var preferredSize: CGSize? {
-        var largestSvgSize = CGSize.zero
-        var largestSvgArea = 0.0
+        var widestImageWidth = 0.0
+        var widestImageAspectRatio = -1.0
+        
+        func updateWith(size: CGSize) {
+            if size.width > widestImageWidth {
+                widestImageWidth = size.width
+                widestImageAspectRatio = size.aspectRatio
+            }
+        }
+        
         for contestant in contestants {
             switch contestant {
             case let .svg(image):
-                if image.hasSize() {
-                    let area = image.size.area
-                    if area > largestSvgArea {
-                        largestSvgArea = area
-                        largestSvgSize = image.size
-                    }
-                }
+                updateWith(size: image.size)
             case let .bitmap(image):
-                return image.size
+                updateWith(size: image.size)
             default:
                 continue
             }
         }
 
-        if largestSvgSize != .zero {
-            return largestSvgSize
+        if widestImageAspectRatio < 0 {
+            return nil
         }
-
-        return nil
+        
+        return CGSize(width: widestImageWidth, height: widestImageWidth / widestImageAspectRatio)
     }
 
     var body: some View {
@@ -48,7 +49,7 @@ struct Ring: View {
                     continue
                 }
                 let size = contestant.size ?? .init(width: 50, height: 50)
-                let aspectRatio = size.width / size.height
+                let aspectRatio = size.aspectRatio
                 let drawingSize = size.width - canvasSize.width > size.height - canvasSize.height ? CGSize(width: canvasSize.width, height: canvasSize.width / aspectRatio) : CGSize(width: canvasSize.height * aspectRatio, height: canvasSize.height)
                 let offset = getOffset(index: index)
                 let image = buildImageFor(contestant, size: drawingSize)
@@ -61,9 +62,9 @@ struct Ring: View {
 
     private func buildImageFor(_ drawable: Drawable, size: CGSize) -> Image {
         switch drawable {
-        case let .svg(image):
+        case var .svg(image):
             image.size = size
-            return Image(nsImage: image.nsImage)
+            return Image(nsImage: image)
         case let .bitmap(image):
             return Image(nsImage: image)
         default:
@@ -80,8 +81,8 @@ struct Ring: View {
 }
 
 fileprivate extension CGSize {
-    var area: Double {
-        return Double(width * height)
+    var aspectRatio: Double {
+        return Double(width / height)
     }
 }
 

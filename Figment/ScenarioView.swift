@@ -8,7 +8,6 @@
 import Foundation
 import SwiftUI
 internal import UniformTypeIdentifiers
-internal import SVGKit
 
 private let miniumImageCountForComparsion = 2
 

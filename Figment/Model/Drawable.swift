@@ -7,13 +7,10 @@
 
 import AppKit
 import Foundation
-internal import SVGKit
-internal import ImageIO
-internal import UniformTypeIdentifiers
 
 enum Drawable: Equatable {
     case bitmap(image: NSImage)
-    case svg(image: SVGKImage)
+    case svg(image: NSImage)
     case none
 
     var size: CGSize? {
@@ -21,11 +18,7 @@ enum Drawable: Equatable {
         case let .bitmap(image):
             image.size
         case let .svg(image):
-            if image.hasSize() {
-                image.size
-            } else {
-                nil
-            }
+            image.size
         case .none:
             nil
         }
@@ -34,7 +27,7 @@ enum Drawable: Equatable {
     static func parse(data: Data) -> Drawable {
         let text = String(data: data, encoding: .ascii)
         if text?.starts(with: "<") == true {
-            return .svg(image: SVGKImage(data: data))
+            return .svg(image: NSImage(data: data)!)
         }
 
         let nsImage = NSImage(data: data)

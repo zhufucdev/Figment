@@ -10,7 +10,7 @@ import SwiftUI
 
 struct Ring: View {
     let contestants: [Drawable]
-    @Binding var offsets: [CGPoint]
+    var offsets: [Offset] = []
     var hidden: [Bool] = []
     var selectedIndices: Set<Int> = Set()
 
@@ -56,7 +56,7 @@ struct Ring: View {
                     let offset = getOffset(index: index)
                     let image = buildImageFor(contestant, size: drawingSize)
 
-                    return (image, CGRect(x: Int((canvasSize.width - drawingSize.width) / 2 + offset.x), y: Int((canvasSize.height - drawingSize.height) / 2 + offset.y), width: Int(drawingSize.width), height: Int(drawingSize.height)))
+                    return (image, CGRect(x: Int((canvasSize.width - drawingSize.width) / 2.0 + offset.x), y: Int((canvasSize.height - drawingSize.height) / 2.0 + offset.y), width: Int(drawingSize.width), height: Int(drawingSize.height)))
                 })
 
             context.blendMode = .difference
@@ -65,7 +65,7 @@ struct Ring: View {
             }
             
             context.blendMode = .normal
-            for (index, (image, area)) in imageDraw.enumerated() {
+            for (index, (_, area)) in imageDraw.enumerated() {
                 if selectedIndices.contains(index) {
                     context.stroke(Path(area), with: .color(.accentColor), style: StrokeStyle(lineWidth: 2, dash: [10, 2]))
                 }
@@ -86,7 +86,7 @@ struct Ring: View {
         }
     }
 
-    private func getOffset(index: Int) -> CGPoint {
+    private func getOffset(index: Int) -> Offset {
         if index < offsets.count {
             return offsets[index]
         }
@@ -112,10 +112,10 @@ fileprivate extension CGSize {
         Ring(contestants: [
             Drawable.parse(data: Data(base64Encoded: base64OfHello)!),
             Drawable.parse(data: Data(base64Encoded: base64OfHi)!),
-        ], offsets: .constant([]), selectedIndices: Set(arrayLiteral: 1))
+        ], selectedIndices: Set(arrayLiteral: 1))
         Ring(contestants: [
             Drawable.parse(data: Data(base64Encoded: base64OfHello)!),
             Drawable.parse(data: Data(randomSvg.utf8)),
-        ], offsets: .constant([]))
+        ])
     }
 }

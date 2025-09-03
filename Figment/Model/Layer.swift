@@ -6,9 +6,11 @@
 //
 
 import Foundation
+internal import CoreGraphics
 
 struct Layer : Codable, Identifiable {
     let data: Data
     let id: String
     var hidden: Bool = false
+    var offset: Offset = .zero
 }

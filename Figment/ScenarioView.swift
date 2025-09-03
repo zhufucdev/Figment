@@ -119,7 +119,9 @@ struct ScenarioView: View {
     @State private var selectedLayerIds = Set<String>()
     private var comparisonView: some View {
         ZoomableScrollView(scale: $comparisonViewScale, maxScale: 10, minScale: 0.1) {
-            Ring(contestants: layerImages, offsets: .constant([]), hidden: value.layers.map { $0.hidden }, selectedIndices: Set(selectedLayerIds.map { id in value.layers.firstIndex { layer in
+            Ring(contestants: layerImages, offsets: value.layers.map { layer in
+                layer.offset
+            }, hidden: value.layers.map { $0.hidden }, selectedIndices: Set(selectedLayerIds.map { id in value.layers.firstIndex { layer in
                 layer.id == id
             } ?? -1 }.filter { $0 >= 0 }))
         }

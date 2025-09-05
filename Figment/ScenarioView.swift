@@ -116,18 +116,30 @@ struct ScenarioView: View {
 
     @State private var comparisonViewScale: CGFloat = 1
     @State private var showLayersPanel = false
-    @State private var selectedLayerIds = Set<String>()
+    @Environment(\.selectedLayers) private var selectedLayers: Binding<Set<Layer>>
+    private var selectedLayerIds: Binding<Set<String>> {
+        Binding {
+            Set(selectedLayers.wrappedValue.map { $0.id })
+        } set: { newValue in
+            selectedLayers.wrappedValue = Set(newValue.map { id in value.layers.first { layer in
+                layer.id == id
+            }! })
+        }
+    }
+
     private var comparisonView: some View {
         ZoomableScrollView(scale: $comparisonViewScale, maxScale: 10, minScale: 0.1) {
             Ring(contestants: layerImages, offsets: value.layers.map { layer in
                 layer.offset
-            }, hidden: value.layers.map { $0.hidden }, selectedIndices: Set(selectedLayerIds.map { id in value.layers.firstIndex { layer in
-                layer.id == id
-            } ?? -1 }.filter { $0 >= 0 }))
+            }, hidden: value.layers.map { $0.hidden }, selectedIndices: Set(value.layers.enumerated().filter { _, layer in
+                selectedLayers.wrappedValue.contains(layer)
+            }.map { index, _ in
+                index
+            }))
         }
         .ignoresSafeArea(.all)
         .inspector(isPresented: $showLayersPanel) {
-            List(selection: $selectedLayerIds) {
+            List(selection: selectedLayerIds) {
                 ForEach(Array(value.layers.enumerated()), id: \.element.id) { index, layer in
                     LayerView(layer: Binding(get: {
                         layer

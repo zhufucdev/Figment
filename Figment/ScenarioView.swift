@@ -154,6 +154,9 @@ struct ScenarioView: View {
                         value.layers[index] = newValue
                     }), order: index)
                 }
+                .onMove { fromIndex, toIndex in
+                    value.layers.move(fromOffsets: fromIndex, toOffset: toIndex)
+                }
             }
         }
         .toolbar {

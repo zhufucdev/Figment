@@ -17,7 +17,7 @@ struct ContentView: View {
             List {
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
                     NavigationLink {
-                        ScenarioView(value: item)
+                        ScenarioView(value: item, dropAdapter: .init(modelContainer: modelContext.container))
                     } label: {
                         Text(item.name)
                             .swipeActions {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 import SwiftUI
 internal import UniformTypeIdentifiers
 
@@ -13,6 +14,8 @@ private let miniumImageCountForComparsion = 2
 
 struct ScenarioView: View {
     let value: Scenario
+    var dropAdapter: LayerDropAdapter? = nil
+
     @State private var isDropHovered = false
     @State private var isLoading = false
     @State private var layerLoaderError: Error? = nil
@@ -77,10 +80,14 @@ struct ScenarioView: View {
                 .frame(width: 200, height: 200)
             }
             .onDrop(of: [.image], isTargeted: $isDropHovered) { items in
+                if dropAdapter == nil {
+                    return false
+                }
+                    
                 Task {
                     isLoading = true
                     do {
-                        let newLayers = try await loadLayers(items)
+                        let newLayers = try await dropAdapter!.loadLayers(items)
                         withAnimation {
                             value.layers += newLayers
                         }
@@ -117,12 +124,12 @@ struct ScenarioView: View {
     @State private var comparisonViewScale: CGFloat = 1
     @State private var showLayersPanel = false
     @Environment(\.selectedLayers) private var selectedLayers: Binding<Set<Layer>>
-    private var selectedLayerIds: Binding<Set<String>> {
+    private var selectedLayerIds: Binding<Set<PersistentIdentifier>> {
         Binding {
-            Set(selectedLayers.wrappedValue.map { $0.id })
+            Set(selectedLayers.wrappedValue.map { $0.persistentModelID })
         } set: { newValue in
             selectedLayers.wrappedValue = Set(newValue.map { id in value.layers.first { layer in
-                layer.id == id
+                layer.persistentModelID == id
             }! })
         }
     }
@@ -160,28 +167,6 @@ struct ScenarioView: View {
         }
     }
 
-    private func loadLayers(_ items: [NSItemProvider]) async throws -> [Layer] {
-        return try await withThrowingTaskGroup(of: Layer.self) { tg in
-            for item in items {
-                let defaultName = item.suggestedName
-                tg.addTask {
-                    try await withCheckedThrowingContinuation { continuation in
-                        _ = item.loadDataRepresentation(for: .image) { data, err in
-                            if let data = data {
-                                continuation.resume(returning: Layer(data: data, id: defaultName ?? UUID().uuidString))
-                            } else {
-                                continuation.resume(throwing: err!)
-                            }
-                        }
-                    }
-                }
-            }
-            return try await tg.reduce([]) { partialResult, layer in
-                partialResult + [layer]
-            }
-        }
-    }
-
     func buildPreview(index: Int, layer: Layer) -> some View {
         let offsetY = CGFloat(-15) * CGFloat(value.layers.count - index - 1) / CGFloat(value.layers.count)
         return buildSafeImage(data: layer.data)
@@ -208,7 +193,7 @@ struct ScenarioView: View {
                         VStack(alignment: .leading) {
                             Text("With one layer")
                             ScenarioView(value: .init(name: "Test Scenario With One Layer", timestamp: .now, layers: [
-                                Layer(data: Data(base64Encoded: base64OfHi)!, id: "layer0"),
+                                Layer(data: Data(base64Encoded: base64OfHi)!, name: "layer0"),
                             ]))
                         }
                     }
@@ -217,8 +202,8 @@ struct ScenarioView: View {
             }
             NavigationLink("compare") {
                 ScenarioView(value: .init(name: "Test Scenario With Two Layers", timestamp: .now, layers: [
-                    Layer(data: Data(base64Encoded: base64OfHi)!, id: "layer0"),
-                    Layer(data: Data(base64Encoded: base64OfHello)!, id: "layer1"),
+                    Layer(data: Data(base64Encoded: base64OfHi)!, name: "layer0"),
+                    Layer(data: Data(base64Encoded: base64OfHello)!, name: "layer1"),
                 ]))
             }
         }

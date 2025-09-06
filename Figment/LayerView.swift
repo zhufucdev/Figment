@@ -36,6 +36,6 @@ struct LayerView: View {
 }
 
 #Preview {
-    @Previewable @State var layer = Layer(data: Data(base64Encoded: base64OfHello)!, id: "hello")
+    @Previewable @State var layer = Layer(data: Data(base64Encoded: base64OfHello)!, name: "hello")
     LayerView(layer: $layer, order: 0)
 }

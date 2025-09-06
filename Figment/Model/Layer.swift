@@ -9,20 +9,17 @@ import Foundation
 import SwiftData
 internal import CoreGraphics
 
-@Model class Layer: Identifiable, Hashable, Equatable {
+@Model class Layer {
     var data: Data
-    var id: String
+    var name: String
     var hidden: Bool
     var offset: Offset
     
-    init(data: Data, id: String, hidden: Bool = false, offset: Offset = .zero) {
+    init(data: Data, name: String, hidden: Bool = false, offset: Offset = .zero) {
         self.data = data
-        self.id = id
+        self.name = name
         self.hidden = hidden
         self.offset = offset
     }
-
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
-    }
 }
+

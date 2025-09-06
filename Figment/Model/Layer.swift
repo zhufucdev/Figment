@@ -10,16 +10,25 @@ import SwiftData
 internal import CoreGraphics
 
 @Model class Layer {
+    @Attribute(.externalStorage)
     var data: Data
     var name: String
     var hidden: Bool
-    var offset: Offset
+    private var _offset: Offset?
+    var offset: Offset {
+        get {
+            _offset ?? .zero
+        }
+        set {
+            _offset = newValue
+        }
+    }
     
-    init(data: Data, name: String, hidden: Bool = false, offset: Offset = .zero) {
+    init(data: Data, name: String, hidden: Bool = false, offset: Offset? = nil) {
         self.data = data
         self.name = name
         self.hidden = hidden
-        self.offset = offset
+        self._offset = offset
     }
 }
 

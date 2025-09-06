@@ -16,9 +16,9 @@ public actor LayerDropAdapter {
         modelContext.insert(model)
         return model.persistentModelID
     }
-    
+
     func loadLayers(_ items: [NSItemProvider]) async throws -> [Layer] {
-        (try await withThrowingTaskGroup(of: PersistentIdentifier.self) { tg in
+        let layers: [Layer] = (try await withThrowingTaskGroup(of: PersistentIdentifier.self) { tg in
             for item in items {
                 tg.addTask {
                     let data = try await item.loadDataRepresentation(for: .image)
@@ -31,5 +31,7 @@ public actor LayerDropAdapter {
         }).map { id in
             modelContext.registeredModel(for: id)!
         }
+        try modelContext.save()
+        return layers
     }
 }

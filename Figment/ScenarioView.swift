@@ -147,7 +147,7 @@ struct ScenarioView: View {
         .ignoresSafeArea(.all)
         .inspector(isPresented: $showLayersPanel) {
             List(selection: selectedLayerIds) {
-                ForEach(Array(value.layers.enumerated()), id: \.element.id) { index, layer in
+                ForEach(Array(value.layers.enumerated().reversed()), id: \.element.id) { index, layer in
                     LayerView(layer: Binding(get: {
                         layer
                     }, set: { newValue in

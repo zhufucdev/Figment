@@ -12,8 +12,7 @@ import SwiftData
 final class Scenario {
     var name: String
     var timestamp: Date
-    @Relationship(deleteRule: .cascade)
-    var layers: [Layer]
+    @Relationship(deleteRule: .cascade) var layers: [Layer]
     
     init(name: String, timestamp: Date, layers: [Layer] = []) {
         self.name = name

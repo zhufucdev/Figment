@@ -10,8 +10,8 @@ import SwiftData
 internal import CoreGraphics
 
 @Model class Layer {
-    @Attribute(.externalStorage)
-    var data: Data
+    @Relationship(inverse: \Scenario.layers) var scenario: Scenario?
+    @Attribute(.externalStorage) var data: Data
     var name: String
     var hidden: Bool
     private var _offset: Offset?

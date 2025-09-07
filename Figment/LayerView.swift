@@ -10,7 +10,6 @@ import SwiftUI
 
 struct LayerView: View {
     @Binding var layer: Layer
-    let order: Int
     
     var body: some View {
         HStack {
@@ -20,7 +19,7 @@ struct LayerView: View {
                 .frame(width: 50, height: 50)
                 .clipped()
                 .border(.foreground, width: 2)
-            Text("\(Image(systemName: "number"))\(order)")
+            Text("\(Image(systemName: "number"))\(layer.priority)")
                 .lineLimit(1, reservesSpace: false)
                 .truncationMode(.tail)
             Spacer()
@@ -37,5 +36,5 @@ struct LayerView: View {
 
 #Preview {
     @Previewable @State var layer = Layer(data: Data(base64Encoded: base64OfHello)!, name: "hello")
-    LayerView(layer: $layer, order: 0)
+    LayerView(layer: $layer)
 }

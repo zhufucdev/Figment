@@ -10,10 +10,10 @@ import SwiftData
 internal import CoreGraphics
 
 @Model class Layer {
-    @Relationship(inverse: \Scenario.layers) var scenario: Scenario?
     @Attribute(.externalStorage) var data: Data
     var name: String
     var hidden: Bool
+    var priority: Int
     private var _offset: Offset?
     var offset: Offset {
         get {
@@ -24,11 +24,12 @@ internal import CoreGraphics
         }
     }
     
-    init(data: Data, name: String, hidden: Bool = false, offset: Offset? = nil) {
+    init(data: Data, name: String, hidden: Bool = false, priority: Int = 0, offset: Offset? = nil) {
         self.data = data
         self.name = name
         self.hidden = hidden
         self._offset = offset
+        self.priority = priority
     }
 }
 

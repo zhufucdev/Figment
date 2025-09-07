@@ -36,7 +36,7 @@ struct ScenarioView: View {
     }
 
     private var layerImages: [Drawable] {
-        Array(value.layers.map { layer in
+        Array(value.orderedLayers.map { layer in
             Drawable.parse(data: layer.data)
         })
     }
@@ -152,10 +152,13 @@ struct ScenarioView: View {
                         layer
                     }, set: { newValue in
                         value.layers[index] = newValue
-                    }), order: index)
+                    }))
                 }
                 .onMove { fromIndex, toIndex in
                     value.layers.move(fromOffsets: fromIndex, toOffset: toIndex)
+                    value.layers.enumerated().forEach { index, layer in
+                        layer.priority = index
+                    }
                 }
             }
         }

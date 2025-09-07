@@ -13,6 +13,9 @@ final class Scenario {
     var name: String
     var timestamp: Date
     @Relationship(deleteRule: .cascade) var layers: [Layer]
+    var orderedLayers: [Layer] {
+        layers.sorted { $0.priority < $1.priority }
+    }
     
     init(name: String, timestamp: Date, layers: [Layer] = []) {
         self.name = name
